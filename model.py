@@ -3,6 +3,7 @@ from __future__ import division, print_function, absolute_import
 import tensorflow as tf
 import numpy as np
 import matplotlib.pyplot as plt
+import pandas as pd
 
 # Import MNIST data
 # from tensorflow.examples.tutorials.mnist import input_data
@@ -29,13 +30,8 @@ biases = {
 }
 
 def load_data(filename):
-  with open(filename, 'r') as file:
-    lines = file.readlines()
-    print(len(lines))
-
-    for line in lines:
-      print(line)
-      print(line.split('\t'))
+  data = pd.read_csv('data/out2.txt', header=None)
+  return data
 
 def next_batch(batch_size):
   return mnist.train.next_batch(BATCH_SIZE)
@@ -43,44 +39,44 @@ def next_batch(batch_size):
 def main():
   load_data(FILENAME)
 
-  # X = tf.placeholder("float", [None, N_INPUT])
+  X = tf.placeholder("float", [None, N_INPUT])
 
-  # encoder_op = encoder(X)
-  # decoder_op = decoder(encoder_op)
+  encoder_op = encoder(X)
+  decoder_op = decoder(encoder_op)
 
-  # y_pred = decoder_op
-  # y_true = X
+  y_pred = decoder_op
+  y_true = X
 
-  # cost = tf.reduce_mean(tf.pow(y_true - y_pred, 2))
-  # optimizer = tf.train.RMSPropOptimizer(LEARNING_RATE).minimize(cost)
+  cost = tf.reduce_mean(tf.pow(y_true - y_pred, 2))
+  optimizer = tf.train.RMSPropOptimizer(LEARNING_RATE).minimize(cost)
 
-  # init = tf.global_variables_initializer()
+  init = tf.global_variables_initializer()
 
-  # with tf.Session() as sess:
-  #   sess.run(init)
-  #   total_batch = int(mnist.train.num_examples/BATCH_SIZE)
-  #   for epoch in range(TRAINING_EPOCHS):
-  #     for i in range(total_batch):
-  #       batch_xs, batch_ys = next_batch()
-  #       _, c = sess.run([optimizer, cost], feed_dict={X: batch_xs})
+  with tf.Session() as sess:
+    sess.run(init)
+    total_batch = int(mnist.train.num_examples/BATCH_SIZE)
+    for epoch in range(TRAINING_EPOCHS):
+      for i in range(total_batch):
+        batch_xs, batch_ys = next_batch()
+        _, c = sess.run([optimizer, cost], feed_dict={X: batch_xs})
 
-  #     if epoch % DISPLAY_STEP == 0:
-  #       print("Epoch:", '%04d' % (epoch+1), "{:.9f}".format(c))
+      if epoch % DISPLAY_STEP == 0:
+        print("Epoch:", '%04d' % (epoch+1), "{:.9f}".format(c))
 
-  #     print("Optimization Finished!")
+      print("Optimization Finished!")
 
-  #   # Applying encode and decode over test set
-  #   encode_decode = sess.run(
-  #       y_pred, feed_dict={X: mnist.test.images[:examples_to_show]})
+    # Applying encode and decode over test set
+    encode_decode = sess.run(
+        y_pred, feed_dict={X: mnist.test.images[:examples_to_show]})
 
-  #   # Compare original images with their reconstructions
-  #   f, a = plt.subplots(2, 10, figsize=(10, 2))
-  #   for i in range(examples_to_show):
-  #       a[0][i].imshow(np.reshape(mnist.test.images[i], (28, 28)))
-  #       a[1][i].imshow(np.reshape(encode_decode[i], (28, 28)))
-  #   f.show()
-  #   plt.draw()
-  #   plt.waitforbuttonpress()
+    # Compare original images with their reconstructions
+    # f, a = plt.subplots(2, 10, figsize=(10, 2))
+    # for i in range(examples_to_show):
+    #     a[0][i].imshow(np.reshape(mnist.test.images[i], (28, 28)))
+    #     a[1][i].imshow(np.reshape(encode_decode[i], (28, 28)))
+    # f.show()
+    # plt.draw()
+    # plt.waitforbuttonpress()
 
 # Building the encoder
 def encoder(x):
